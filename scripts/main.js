@@ -4,20 +4,22 @@
   'use strict';
 
   window.addEventListener('load', function () {
-     var dashboardOptions = new DashboardOptions();
+    var dashboardOptions = new DashboardOptions();
     dashboardOptions.init();
     var dashboard = new Dashboard(dashboardOptions);
     dashboard.init();
+    var dashboardUi = new DashboardUi();
+    dashboardUi.init();
   }, false);
 
   function DashboardOptions() {
-    this.dashboardElementId = 'dashboard';
+    this.dashboardSectionId = 'dashboard';
     this.configElementId = 'config';
   }
 
   DashboardOptions.prototype.init = function() {
     this._parsedQueryString = this._parseQueryString(location.search);
-    this.urls = this._getDashboardsFromQueryString();
+    this.urls = this._getUrlsFromQueryString();
     this.interval = this._getUpdateIntervalInSeconds();
   };
 
@@ -31,15 +33,11 @@
     return qd;
   };
 
-  DashboardOptions.prototype._getDashboardsFromQueryString = function() {
+  DashboardOptions.prototype._getUrlsFromQueryString = function() {
     var decodedUrls = [];
     if (this._parsedQueryString.dashboard instanceof Array) {
       for (var i = 0; i < this._parsedQueryString.dashboard.length; i++) {
         decodedUrls[i] = decodeURIComponent(this._parsedQueryString.dashboard[i]);
-      }
-    } else {
-      if (this._parsedQueryString.dashboard) {
-        decodedUrls[0] = decodeURIComponent(this._parsedQueryString.dashboard);
       }
     }
     console.log('Available dashboards (' + decodedUrls.length + '): ' + decodedUrls);
@@ -56,7 +54,7 @@
   };
 
   function Dashboard(options) {
-    this.options = options;
+    this._options = options;
     this.currentIndex = 0;
   }
 
@@ -64,33 +62,69 @@
     var _this = this;
     console.log('Initializing dashboard');
 
-    if (this.options.urls.length === 0) {
+    if (this._options.urls.length === 0) {
       this._showDashboardConfig();
     } else {
       this.showNextDashboard();
       setInterval(function () {
         _this.showNextDashboard();
-      }, 1000 * this.options.interval);
+      }, 1000 * this._options.interval);
     }
   };
 
   Dashboard.prototype.showNextDashboard = function() {
-    if (this.currentIndex >= this.options.urls.length) {
+    if (this.currentIndex >= this._options.urls.length) {
       this.currentIndex = 0;
     }
-    this._setFrameSrc(this.options.dashboardElementId, this.options.urls[this.currentIndex]);
+    this._changeDashboard(this._options.dashboardSectionId, this._options.urls[this.currentIndex]);
     this.currentIndex++;
   };
 
-  Dashboard.prototype._setFrameSrc = function(frameId, url) {
+  Dashboard.prototype._changeDashboard = function(dashboardSectionId, url) {
     console.log('Showing: ' + url);
-    var frame = document.getElementById(frameId);
-    frame.src = url;
+    var dashboardSection = document.getElementById(dashboardSectionId);
+    var dashboard = document.createElement('iframe');
+    dashboard.setAttribute('allowtransparency', 'true');
+    dashboard.src = url;
+
+    while(dashboardSection.firstChild) {
+      dashboardSection.removeChild(dashboardSection.firstChild);
+    }
+    dashboardSection.appendChild(dashboard);
+    // window.frames[frameId].location.replace(url);
   };
 
   Dashboard.prototype._showDashboardConfig = function() {
-    document.getElementById(this.options.dashboardElementId).classList.add('hidden');
-    document.getElementById(this.options.configElementId).classList.remove('hidden');
+    document.getElementById(this._options.dashboardSectionId).classList.add('hidden');
+    document.getElementById(this._options.configElementId).classList.remove('hidden');
+  };
+
+  function DashboardUi() {
+    this._saveButton = document.getElementById('save');
+    this._urlsTextarea = document.getElementById('dashboard-urls');
+    this._intervalTextbox = document.getElementById('interval');
+  }
+
+  DashboardUi.prototype.init = function() {
+    var _this = this;
+    this._saveButton.addEventListener('click', function() {
+      _this._redirectToDashboard();
+    });
+  };
+
+  DashboardUi.prototype._redirectToDashboard = function() {
+    var urls = this._urlsTextarea.value.split('\n');
+    var dashboardParams = '';
+    for (var i = 0; i < urls.length; i++) {
+      var url = urls[i].trim();
+      if (url) {
+        dashboardParams += dashboardParams ? '&' : '?';
+        dashboardParams += 'dashboard=' + encodeURIComponent(url);
+      }
+    }
+    dashboardParams += dashboardParams ? '&' : '?';
+    dashboardParams += 'interval=' + parseInt(this._intervalTextbox.value) || 90;
+    window.location.href = './' + dashboardParams;
   };
 
 }());
