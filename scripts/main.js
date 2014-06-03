@@ -82,16 +82,18 @@
 
   Dashboard.prototype._changeDashboard = function(dashboardSectionId, url) {
     console.log('Showing: ' + url);
-    var dashboardSection = document.getElementById(dashboardSectionId);
     var dashboard = document.createElement('iframe');
+//    dashboard.addEventListener('load', function () {
+//      dashboard.classList.remove('hidden');
+//    }, false);
     dashboard.setAttribute('allowtransparency', 'true');
+    // dashboard.classList.add('hidden');
     dashboard.src = url;
-
+    var dashboardSection = document.getElementById(dashboardSectionId);
     while(dashboardSection.firstChild) {
       dashboardSection.removeChild(dashboardSection.firstChild);
     }
     dashboardSection.appendChild(dashboard);
-    // window.frames[frameId].location.replace(url);
   };
 
   Dashboard.prototype._showDashboardConfig = function() {
