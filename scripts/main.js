@@ -126,7 +126,7 @@
     }
     dashboardParams += dashboardParams ? '&' : '?';
     dashboardParams += 'interval=' + parseInt(this._intervalTextbox.value) || 90;
-    window.location.href = './' + dashboardParams;
+    window.location.href = dashboardParams;
   };
 
 }());
