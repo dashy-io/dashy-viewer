@@ -6,6 +6,8 @@
   window.addEventListener('load', function () {
     var dashboardOptions = new DashboardOptions();
     dashboardOptions.init();
+    var branding = new Branding();
+    branding.init();
     var dashboard = new Dashboard(dashboardOptions);
     dashboard.init();
     var dashboardUi = new DashboardUi();
@@ -68,7 +70,7 @@
       this.showNextDashboard();
       setInterval(function () {
         _this.showNextDashboard();
-      }, 1000 * this._options.interval);
+      }, this._options.interval * 1000);
     }
   };
 
@@ -127,6 +129,49 @@
     dashboardParams += dashboardParams ? '&' : '?';
     dashboardParams += 'interval=' + parseInt(this._intervalTextbox.value) || 90;
     window.location.href = dashboardParams;
+  };
+
+  function Branding() {
+    var _this = this;
+    this._retryInterval = 30;
+    this._xhr = new XMLHttpRequest();
+    this._brandingSection = document.getElementById('branding');
+    this._brandingUrl = 'branding/7digital.html';
+    this._xhr.onreadystatechange = function () { _this._processResponse(); };
+    this._xhr.timeout = this._retryInterval * 1000;
+    this._xhr.ontimeout = function () { _this._handleTimeout(); };
+  }
+
+  Branding.prototype.init = function() {
+    this._render('Loading branding...');
+    this._xhr.open('GET', this._brandingUrl, true );
+    this._xhr.send(null);
+  };
+
+  Branding.prototype._processResponse = function () {
+    if (this._xhr.readyState != 4) {
+      return;
+    }
+    if (this._xhr.status == 200
+        || (this._xhr.status == 0 && this._xhr.response)) // for file://.. requests the status is 0
+    {
+      this._render(this._xhr.responseText);
+    } else {
+      this._handleError();
+    }
+  };
+
+  Branding.prototype._handleError = function () {
+    var _this = this;
+    this._render('Error loading branding. Retrying in ' + this._retryInterval + ' seconds.<br />URL: ' + this._brandingUrl);
+    setInterval(function () {
+      _this.init();
+    }, this._retryInterval * 1000);
+
+  };
+
+  Branding.prototype._render = function (content) {
+    this._brandingSection.innerHTML = content;
   };
 
 }());
