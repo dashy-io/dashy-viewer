@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DASHBOARD_FILE="file://$(pwd)/index.html$(cat ~/.dashy)"
+DASHBOARD_FILE="file://$(cd $(dirname $0); pwd -P)/index.html$(cat ~/.dashy)"
 
 if command -v chromium >/dev/null 2>&1
 then
