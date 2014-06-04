@@ -1,4 +1,4 @@
 dashy-client
 ============
 
-A client-side configurable dashboard rotator
+Client-side configurable dashboard rotator
