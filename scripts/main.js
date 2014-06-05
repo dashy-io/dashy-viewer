@@ -6,7 +6,7 @@
   window.addEventListener('load', function () {
     var dashboardOptions = new DashboardOptions();
     dashboardOptions.init();
-    var branding = new Branding();
+    var branding = new Branding(dashboardOptions);
     branding.init();
     var dashboard = new Dashboard(dashboardOptions);
     dashboard.init();
@@ -23,6 +23,7 @@
     this._parsedQueryString = this._parseQueryString(location.search);
     this.urls = this._getUrlsFromQueryString();
     this.interval = this._getUpdateIntervalInSeconds();
+    this.brandingUrl = this._getBrandingUrl();
   };
 
   DashboardOptions.prototype._parseQueryString = function(queryString) {
@@ -53,6 +54,12 @@
     }
     console.log('Refresh interval: ' + updateIntervalInSeconds);
     return updateIntervalInSeconds;
+  };
+
+  DashboardOptions.prototype._getBrandingUrl = function() {
+    var brandingUrl = this._parsedQueryString.branding;
+    console.log('Branding url: ' + brandingUrl);
+    return brandingUrl;
   };
 
   function Dashboard(options) {
@@ -107,6 +114,7 @@
     this._saveButton = document.getElementById('save');
     this._urlsTextarea = document.getElementById('dashboard-urls');
     this._intervalTextbox = document.getElementById('interval');
+    this._brandingUrlTextbox = document.getElementById('branding-url');
   }
 
   DashboardUi.prototype.init = function() {
@@ -128,23 +136,30 @@
     }
     dashboardParams += dashboardParams ? '&' : '?';
     dashboardParams += 'interval=' + parseInt(this._intervalTextbox.value) || 90;
+    dashboardParams += dashboardParams ? '&' : '?';
+    dashboardParams += 'branding=' + this._brandingUrlTextbox.value;
     window.location.href = dashboardParams;
   };
 
-  function Branding() {
+  function Branding(options) {
     var _this = this;
+    this._options = options;
     this._retryInterval = 30;
     this._xhr = new XMLHttpRequest();
     this._brandingSection = document.getElementById('branding');
-    this._brandingUrl = 'branding/7digital.html';
     this._xhr.onreadystatechange = function () { _this._processResponse(); };
     this._xhr.timeout = this._retryInterval * 1000;
     this._xhr.ontimeout = function () { _this._handleTimeout(); };
   }
 
   Branding.prototype.init = function() {
+    if (!this._options.brandingUrl) {
+      console.log('No branding');
+      return;
+    }
+    console.log('Loading branding from ' + this._options.brandingUrl);
     this._render('Loading branding...');
-    this._xhr.open('GET', this._brandingUrl, true );
+    this._xhr.open('GET', this._options.brandingUrl, true );
     this._xhr.send(null);
   };
 
@@ -163,7 +178,7 @@
 
   Branding.prototype._handleError = function () {
     var _this = this;
-    this._render('Error loading branding. Retrying in ' + this._retryInterval + ' seconds.<br />URL: ' + this._brandingUrl);
+    this._render('Error loading branding. Retrying in ' + this._retryInterval + ' seconds.<br />URL: ' + this._options.brandingUrl);
     setInterval(function () {
       _this.init();
     }, this._retryInterval * 1000);
