@@ -1,40 +1,51 @@
 <!DOCTYPE html>
-<html>
-<head lang="en">
-  <meta charset="UTF-8">
+<html lang="en">
+<head>
   <title>Dashboard</title>
-  <link href="http://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css" rel="stylesheet">
-  <link href="styles/style.css" rel="stylesheet" >
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+  <link href="styles/style.css" rel="stylesheet">
   <script src="scripts/main.js"></script>
 </head>
 <body>
   <section id="dashboard">
   </section>
   <div id="branding-wrap">
-  <section id="branding">
+  <section id="branding" class="container-fluid">
   </section>
   </div>
-  <section id="config" class="hidden">
+  <section id="config" class="hidden container">
     <h1>Configuration</h1>
-    <p>
-      <label for="dashboard-urls">Dashboard urls, one per line</label><br />
-      <textarea id="dashboard-urls">http://citydashboard.org/london/
+    <form role="form">
+      <div class="form-group">
+        <label for="dashboard-urls">Dashboard urls, one per line</label><br />
+        <textarea id="dashboard-urls" placeholder="Dashboard urls" class="form-control" rows="10" required>http://citydashboard.org/london/
 http://www.casa.ucl.ac.uk/cumulus/ipad.html
 http://www.gridwatch.templar.co.uk/
 http://www.casa.ucl.ac.uk/weather/colours.html</textarea>
-    </p>
-    <p>
-      <label for="interval">Interval</label>
-      <input id="interval" type="text" value="10" /> seconds
-    </p>
-    <p>
-      <label for="branding-url">Branding url</label>
-      <input id="branding-url" type="text" value="branding/7digital-ascii.html" /><br />
-      Examples: <code>branding/7digital-ascii.html</code> or <code>branding/7digital-logo.html</code>
-    </p>
-    <p>
-      <button id="save">Save</button>
-    </p>
+      </div>
+      <div class="form-group">
+        <label for="interval">Interval (seconds)</label>
+        <input id="interval" placeholder="Interval (seconds)" min="1" value="10" type="number" class="form-control" required />
+      </div>
+      <div class="form-group">
+        <label for="branding-url">Branding url</label><br />
+        <input id="branding-url" placeholder="Branding url" value="branding/7digital-ascii.html" type="text" class="form-control" />
+      </div>
+      <div class="form-group">
+        <dl class="dl-horizontal">
+          <dt>Examples</dt>
+          <dd><code>branding/7digital-ascii.html</code> or <code>branding/7digital-logo.html</code></dd>
+        </dl>
+      </div>
+      <div class="form-group">
+        <button id="save" class="btn btn-primary btn-block" type="submit">
+          <span class="glyphicon glyphicon-floppy"></span> Save
+        </button>
+      </div>
+    </form>
   </section>
 </body>
 </html>

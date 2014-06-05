@@ -9,8 +9,8 @@ body {
   padding: 0;
   margin: 0;
   height: 100%;
-  color: gray;
   overflow: hidden;
+  background-color: transparent;
 }
 
 #dashboard {
@@ -38,33 +38,27 @@ iframe {
 }
 
 #branding {
-  display:table-cell;
-  vertical-align:middle;
+  display: table-cell;
+  vertical-align: middle;
   /*overflow: hidden;*/
 }
 
-.hidden {
-  display: none;
-}
-
 #config {
-  width: 90%;
-  margin: 0 auto;
-  background-color: rgba(255,255,255,0.9);
-  padding: 0.6em;
+  background-color: #fff;
+  /*padding: 0.6em;*/
   border-bottom-left-radius: 0.6em;
   border-bottom-right-radius: 0.6em;
 }
 
 #dashboard-urls {
-  width: 95%;
-  height: 15em;
+  /*width: 95%;*/
+  /*height: 15em;*/
 }
 
 #interval {
-  width: 5em;
+  /*width: 5em;*/
 }
 
 #branding-url {
-  width: 90%;
+  /*width: 90%;*/
 }

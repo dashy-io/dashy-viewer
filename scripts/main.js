@@ -111,7 +111,7 @@
   };
 
   function DashboardUi() {
-    this._saveButton = document.getElementById('save');
+    this._configForm = document.getElementById('config').getElementsByTagName('form')[0];
     this._urlsTextarea = document.getElementById('dashboard-urls');
     this._intervalTextbox = document.getElementById('interval');
     this._brandingUrlTextbox = document.getElementById('branding-url');
@@ -119,9 +119,10 @@
 
   DashboardUi.prototype.init = function() {
     var _this = this;
-    this._saveButton.addEventListener('click', function() {
+    this._configForm.addEventListener('submit', function(e) {
+      e.preventDefault();
       _this._redirectToDashboard();
-    });
+    })
   };
 
   DashboardUi.prototype._redirectToDashboard = function() {
