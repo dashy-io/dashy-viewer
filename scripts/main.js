@@ -8,7 +8,7 @@
     dashboardOptions.init();
     var dashboard = new Dashboard(dashboardOptions);
     dashboard.init();
-    var dashboardUi = new DashboardUi();
+    var dashboardUi = new DashboardUi(dashboard);
     dashboardUi.init();
   }, false);
 
