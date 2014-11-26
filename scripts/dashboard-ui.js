@@ -1,4 +1,4 @@
-function DashboardUi() {
+function DashboardUi(dashboard) {
 
 }
 
