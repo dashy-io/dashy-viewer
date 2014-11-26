@@ -10,7 +10,7 @@ body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-  background-color: transparent;
+  background-color: inherit;
 }
 
 #dashboard {
@@ -24,41 +24,4 @@ iframe {
   margin: 0;
   border: 0;
   overflow: auto;
-}
-
-#branding-wrap {
-  z-index: -100;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  display: table;
-}
-
-#branding {
-  display: table-cell;
-  vertical-align: middle;
-  /*overflow: hidden;*/
-}
-
-#config {
-  background-color: #fff;
-  /*padding: 0.6em;*/
-  border-bottom-left-radius: 0.6em;
-  border-bottom-right-radius: 0.6em;
-}
-
-#dashboard-urls {
-  /*width: 95%;*/
-  /*height: 15em;*/
-}
-
-#interval {
-  /*width: 5em;*/
-}
-
-#branding-url {
-  /*width: 90%;*/
 }
