@@ -13,6 +13,10 @@ body {
   background-color: inherit;
 }
 
+section {
+  color: white;
+}
+
 #dashboard {
   height: 100%;
 }
