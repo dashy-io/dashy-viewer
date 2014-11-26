@@ -1,4 +1,4 @@
-/* global console, XHR */
+/* global console, XHR, document */
 
 function Dashboard(options) {
   this._options = options;
@@ -7,28 +7,43 @@ function Dashboard(options) {
 
 Dashboard.prototype.init = function () {
   var _this = this;
-  var id = getQueryStringValue('id');
-  console.log('Initializing dashboard ' + id);
-  var xhr = new XHR('http://api.dashy.io/status');
-  xhr.getJson(function (err, res) {
+
+  this._id = getQueryStringValue('id');
+  console.log('Initializing dashboard ' + this._id);
+
+  this.waitForConnection(function (err) {
     if (err) {
-      console.log(err);
-      if (res) {
-        console.log(res);
-      }
+      document.getElementById('connectionStatus').innerText = err;
     } else {
-      console.log(res);
+      document.getElementById('connectionStatus').innerText = 'Connected.';
+      console.log('Connected!');
     }
   });
 
-  if (this._options.urls.length === 0) {
-    // this._showDashboardConfig();
-  } else {
-    this.showNextDashboard();
-    setInterval(function () {
-      _this.showNextDashboard();
-    }, this._options.interval * 1000);
-  }
+  //if (this._options.urls.length === 0) {
+  //  // this._showDashboardConfig();
+  //} else {
+  //  this.showNextDashboard();
+  //  setInterval(function () {
+  //    _this.showNextDashboard();
+  //  }, this._options.interval * 1000);
+  //}
+};
+
+Dashboard.prototype.waitForConnection = function (callback) {
+  var timeoutInSeconds = 3;
+  var _this = this;
+  var xhr = new XHR('http://localhost:3001/dashboard/' + this._id);
+  xhr.getJson(function (err, res) {
+    if (err) {
+      callback('Connection to server failed, retrying in ' + timeoutInSeconds + 's' + '\r\n' + err);
+      window.setTimeout(function() {
+        _this.waitForConnection(callback);
+      }, timeoutInSeconds * 1000);
+    } else {
+      callback();
+    }
+  });
 };
 
 Dashboard.prototype.showNextDashboard = function () {
@@ -55,10 +70,13 @@ Dashboard.prototype._changeDashboard = function (dashboardSectionId, url) {
   dashboardSection.appendChild(dashboard);
 };
 
-//Dashboard.prototype._showDashboardConfig = function () {
-//  document.getElementById(this._options.dashboardSectionId).classList.add('hidden');
-//  document.getElementById(this._options.configElementId).classList.remove('hidden');
-//};
+Dashboard.prototype._hideElement = function (elementId) {
+  document.getElementById(elementId).classList.add('hidden');
+};
+
+Dashboard.prototype._showElement = function (elementId) {
+  document.getElementById(elementId).classList.remove('hidden');
+};
 
 // taken from http://jsperf.com/querystring-with-javascript/20
 function getQueryStringValue(key) {
