@@ -1,8 +1,8 @@
 /* global console, XHR, document */
 
 function Dashboard(options) {
-  this._options = options;
-  this.currentIndex = 0;
+  this._apiUrl = 'http://api.dashy.io';
+  this._currentDashboardIndex = -1;
 }
 
 Dashboard.prototype.init = function () {
@@ -16,23 +16,17 @@ Dashboard.prototype.init = function () {
 
   console.log('Initializing dashboard ' + this._id);
 
-  this.waitForConnection(function (err) {
+  this.waitForConnection(function (err, res) {
     if (err) {
       document.getElementById('connectionStatus').innerText = err;
     } else {
       document.getElementById('connectionStatus').innerText = 'Connected.';
-      console.log('Connected!');
+      console.log('Connected to ' + _this._apiUrl);
+      _this._config = res;
+      _this.hideAllElementsExcept('dashboard');
+      _this.showNextDashboard();
     }
   });
-
-  //if (this._options.urls.length === 0) {
-  //  // this._showDashboardConfig();
-  //} else {
-  //  this.showNextDashboard();
-  //  setInterval(function () {
-  //    _this.showNextDashboard();
-  //  }, this._options.interval * 1000);
-  //}
 };
 
 Dashboard.prototype.notConfigured = function () {
@@ -43,7 +37,7 @@ Dashboard.prototype.notConfigured = function () {
 Dashboard.prototype.waitForConnection = function (callback) {
   var timeoutInSeconds = 3;
   var _this = this;
-  var xhr = new XHR('http://localhost:3001/dashboard/' + this._id);
+  var xhr = new XHR(_this._apiUrl + '/dashboard/' + this._id);
   xhr.getJson(function (err, res) {
     if (err) {
       callback('Connection to server failed, retrying in ' + timeoutInSeconds + 's' + '\r\n' + err);
@@ -51,34 +45,37 @@ Dashboard.prototype.waitForConnection = function (callback) {
         _this.waitForConnection(callback);
       }, timeoutInSeconds * 1000);
     } else {
-      callback();
+      callback(null, res);
     }
   });
 };
 
-//Dashboard.prototype.showNextDashboard = function () {
-//  if (this.currentIndex >= this._options.urls.length) {
-//    this.currentIndex = 0;
-//  }
-//  this._changeDashboard(this._options.dashboardSectionId, this._options.urls[this.currentIndex]);
-//  this.currentIndex++;
-//};
+Dashboard.prototype.showNextDashboard = function () {
+  var _this = this;
+  if (this._currentDashboardIndex >= this._config.urls.length - 1) {
+    this._currentDashboardIndex = 0;
+  } else {
+    this._currentDashboardIndex++;
+  }
+  this.changeDashboard();
+  setTimeout(function () {
+    _this.showNextDashboard();
+  }, this._config.interval * 1000);
+};
 
-//Dashboard.prototype._changeDashboard = function (dashboardSectionId, url) {
-//  console.log('Showing: ' + url);
-//  var dashboard = document.createElement('iframe');
-////    dashboard.addEventListener('load', function () {
-////      dashboard.classList.remove('hidden');
-////    }, false);
-//  dashboard.setAttribute('allowtransparency', 'true');
-//  // dashboard.classList.add('hidden');
-//  dashboard.src = url;
-//  var dashboardSection = document.getElementById(dashboardSectionId);
-//  while (dashboardSection.firstChild) {
-//    dashboardSection.removeChild(dashboardSection.firstChild);
-//  }
-//  dashboardSection.appendChild(dashboard);
-//};
+Dashboard.prototype.changeDashboard = function () {
+  var url = this._config.urls[this._currentDashboardIndex];
+  console.log('Showing %s of %s: %s', this._currentDashboardIndex + 1, this._config.urls.length, url);
+  var dashboardIFrame = document.createElement('iframe');
+//    dashboard.addEventListener('load', function () {
+//      dashboard.classList.remove('hidden');
+//    }, false);
+  // dashboard.setAttribute('allowtransparency', 'true');
+  dashboardIFrame.src = url;
+  var dashboardSection = document.getElementById('dashboard');
+  dashboardSection.innerHTML = '';
+  dashboardSection.appendChild(dashboardIFrame);
+};
 
 Dashboard.prototype.hideAllElementsExcept = function (elementId) {
   var _this = this;
