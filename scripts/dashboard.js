@@ -37,7 +37,7 @@ Dashboard.prototype.notConfigured = function () {
 Dashboard.prototype.waitForConnection = function (callback) {
   var timeoutInSeconds = 15;
   var _this = this;
-  var xhr = new XHR(_this._apiUrl + '/dashboard/' + this._id);
+  var xhr = new XHR(_this._apiUrl + '/dashboards/' + this._id);
   xhr.getJson(function (err, res) {
     if (err) {
       callback(
