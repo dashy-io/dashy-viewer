@@ -9,6 +9,11 @@ Dashboard.prototype.init = function () {
   var _this = this;
 
   this._id = getQueryStringValue('id');
+  if (!this._id) {
+    this.notConfigured();
+    return;
+  }
+
   console.log('Initializing dashboard ' + this._id);
 
   this.waitForConnection(function (err) {
@@ -30,6 +35,11 @@ Dashboard.prototype.init = function () {
   //}
 };
 
+Dashboard.prototype.notConfigured = function () {
+  console.log('Dashy not configured, missing daashboard ID');
+  this.hideAllElementsExcept('not-configured');
+};
+
 Dashboard.prototype.waitForConnection = function (callback) {
   var timeoutInSeconds = 3;
   var _this = this;
@@ -46,35 +56,51 @@ Dashboard.prototype.waitForConnection = function (callback) {
   });
 };
 
-Dashboard.prototype.showNextDashboard = function () {
-  if (this.currentIndex >= this._options.urls.length) {
-    this.currentIndex = 0;
-  }
-  this._changeDashboard(this._options.dashboardSectionId, this._options.urls[this.currentIndex]);
-  this.currentIndex++;
+//Dashboard.prototype.showNextDashboard = function () {
+//  if (this.currentIndex >= this._options.urls.length) {
+//    this.currentIndex = 0;
+//  }
+//  this._changeDashboard(this._options.dashboardSectionId, this._options.urls[this.currentIndex]);
+//  this.currentIndex++;
+//};
+
+//Dashboard.prototype._changeDashboard = function (dashboardSectionId, url) {
+//  console.log('Showing: ' + url);
+//  var dashboard = document.createElement('iframe');
+////    dashboard.addEventListener('load', function () {
+////      dashboard.classList.remove('hidden');
+////    }, false);
+//  dashboard.setAttribute('allowtransparency', 'true');
+//  // dashboard.classList.add('hidden');
+//  dashboard.src = url;
+//  var dashboardSection = document.getElementById(dashboardSectionId);
+//  while (dashboardSection.firstChild) {
+//    dashboardSection.removeChild(dashboardSection.firstChild);
+//  }
+//  dashboardSection.appendChild(dashboard);
+//};
+
+Dashboard.prototype.hideAllElementsExcept = function (elementId) {
+  var _this = this;
+  var elementIds = [
+    'not-configured',
+    'disconnected',
+    'dashboard'
+  ];
+  elementIds.forEach(function (currentElementId) {
+    if (currentElementId === elementId) {
+      _this.showElement(currentElementId);
+    } else {
+      _this.hideElement(currentElementId);
+    }
+  });
 };
 
-Dashboard.prototype._changeDashboard = function (dashboardSectionId, url) {
-  console.log('Showing: ' + url);
-  var dashboard = document.createElement('iframe');
-//    dashboard.addEventListener('load', function () {
-//      dashboard.classList.remove('hidden');
-//    }, false);
-  dashboard.setAttribute('allowtransparency', 'true');
-  // dashboard.classList.add('hidden');
-  dashboard.src = url;
-  var dashboardSection = document.getElementById(dashboardSectionId);
-  while (dashboardSection.firstChild) {
-    dashboardSection.removeChild(dashboardSection.firstChild);
-  }
-  dashboardSection.appendChild(dashboard);
-};
-
-Dashboard.prototype._hideElement = function (elementId) {
+Dashboard.prototype.hideElement = function (elementId) {
   document.getElementById(elementId).classList.add('hidden');
 };
 
-Dashboard.prototype._showElement = function (elementId) {
+Dashboard.prototype.showElement = function (elementId) {
   document.getElementById(elementId).classList.remove('hidden');
 };
 
