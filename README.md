@@ -1,6 +1,5 @@
 dashy-client
 ============
+Dashboard Management Platform: Client
 
-Client-side configurable dashboard rotator
-
-Demo: https://github.com/dashy-io/dashy-client
+Demo: http://dashy-io.github.io/dashy-client/?id=test
