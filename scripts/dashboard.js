@@ -35,12 +35,16 @@ Dashboard.prototype.notConfigured = function () {
 };
 
 Dashboard.prototype.waitForConnection = function (callback) {
-  var timeoutInSeconds = 3;
+  var timeoutInSeconds = 15;
   var _this = this;
   var xhr = new XHR(_this._apiUrl + '/dashboard/' + this._id);
   xhr.getJson(function (err, res) {
     if (err) {
-      callback('Connection to server failed, retrying in ' + timeoutInSeconds + 's' + '\r\n' + err);
+      callback(
+        err + '\r\n' +
+        new Date().toLocaleString() + '\r\n' +
+        'Connection to server failed, retrying in ' + timeoutInSeconds + 's' + '\r\n'
+      );
       window.setTimeout(function() {
         _this.waitForConnection(callback);
       }, timeoutInSeconds * 1000);
