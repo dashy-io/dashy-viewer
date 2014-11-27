@@ -6,8 +6,8 @@ if [ ! -f ~/.dashy ]; then
 else
   echo "Using existing ~/.dashy config."
 fi
-
-DASHBOARD_FILE="file://$(cd $(dirname $0); pwd -P)/index.html$(cat ~/.dashy)"
+GIT_VER="ver=$(git rev-parse HEAD)"
+DASHBOARD_FILE="file://$(cd $(dirname $0); pwd -P)/index.html$(cat ~/.dashy)&${GIT_VER}"
 echo "Url: ${DASHBOARD_FILE}"
 
 if command -v chromium >/dev/null 2>&1; then
