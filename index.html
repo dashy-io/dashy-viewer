@@ -7,26 +7,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="styles/style.css" rel="stylesheet">
   <script src="scripts/xhr.js"></script>
-  <script src="scripts/dashboard-options.js"></script>
   <script src="scripts/dashboard-ui.js"></script>
   <script src="scripts/dashboard.js"></script>
   <script src="scripts/main.js"></script>
 </head>
-<body>
-  <section id="not-initialised" class="hidden">
-    <h2>Dashy is not initialised.</h2>
-    <p>Dashboard ID parameter not set!</p>
-  </section>
-  <section id="not-configured" class="hidden">
-    <h2>Dashy is not configured.</h2>
-    <p>Use the following code to configure the dashboard:</p>
-    <p id="code"></p>
+<body class="hidden">
+  <section id="not-initialised">
+    <h2>Dashy not initialised</h2>
+    <p>Dashboard ID parameter not set.</p>
   </section>
   <section id="disconnected">
     <h2>Connecting to Dashy server...</h2>
-    <pre id="connectionStatus"></pre>
   </section>
-  <section id="dashboard" class="hidden">
+  <section id="error">
+    <h2>Error connecting to Dashy server</h2>
+    <pre id="error-message"></pre>
+  </section>
+  <section id="not-registered">
+    <h2>Registering this device to Dashy</h2>
+    <p>Please wait...</p>
+  </section>
+  <section id="no-code">
+    <h2>Dashy is not configured</h2>
+    <p>Loading connection code from Dashy server...</p>
+  </section>
+  <section id="not-configured">
+    <h2>Dashy is not configured</h2>
+    <p>Connect the dashboard using this code:</p>
+    <p id="code"></p>
+  </section>
+  <section id="dashboard">
   </section>
 </body>
 </html>

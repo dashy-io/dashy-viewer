@@ -1,141 +1,146 @@
-/* global console, XHR, document */
-'use strict';
+/* global console, XHR */
+;(function (context) {
+  'use strict';
 
-function Dashboard() {
-  this._apiUrl = 'http://api.dashy.io';
-  this._currentDashboardIndex = -1;
-}
-
-Dashboard.prototype.init = function () {
-  var _this = this;
-
-  this._id = getQueryStringValue('id');
-  if (!this._id) {
-    this.notInitialised();
-    return;
+  // taken from http://jsperf.com/querystring-with-javascript/20
+  function getQueryStringValue(key) {
+    var arrSearch = location.search.split(key + '=')[1];
+    return arrSearch ? decodeURIComponent(arrSearch.split('&')[0].replace(/\+/g, ' ')) : false;
   }
 
-  this.waitForConnection(function (err, res) {
-    if (err) {
-      document.getElementById('connectionStatus').innerText = err;
-    } else {
-      document.getElementById('connectionStatus').innerText = 'Connected.';
-      _this._config = res;
-      if (!_this._config.url || _this._config.urls.length == 0) {
-        return _this.notConfigured();
+  function Dashboard() {
+    this._apiUrl = 'http://api.dashy.io';
+    this._currentDashboardIndex = -1;
+  }
+
+  Dashboard.prototype.setOnStateChangedCallback = function (cb) {
+    this.onStateChanged = cb;
+  };
+
+  Dashboard.prototype.setState = function (state) {
+    this.state = state;
+    if (this.onStateChanged) {
+      this.onStateChanged();
+    }
+    this.connect();
+  };
+
+  Dashboard.prototype.init = function () {
+    this._id = getQueryStringValue('id');
+    if (!this._id) {
+      this.notInitialised();
+      return;
+    }
+    this.disconnected();
+  };
+
+  Dashboard.prototype.disconnected = function () {
+    this.setState('disconnected');
+  };
+
+  Dashboard.prototype.notInitialised = function () {
+    this.setState('not-initialised');
+  };
+
+  Dashboard.prototype.hasError = function (error) {
+    this.errorMessage = error;
+    this.setState('error');
+  };
+
+  Dashboard.prototype.notRegistered = function () {
+    this.setState('not-registered');
+  };
+
+  Dashboard.prototype.noCode = function () {
+    this.setState('no-code');
+  };
+
+  Dashboard.prototype.notConfigured = function () {
+    this.setState('not-configured');
+  };
+
+  Dashboard.prototype.dashboard = function () {
+    this.setState('dashboard');
+  };
+
+  Dashboard.prototype.dashboardChanged = function () {
+    this.setState('dashboard-changed');
+  };
+
+  Dashboard.prototype.connect = function () {
+    var _this = this;
+    switch (this.state) {
+      case 'disconnected':
+        this.getConfiguration();
+        break;
+      case 'not-registered':
+        this.registerDashboard();
+        break;
+      case 'no-code':
+        this.getDashboardCode();
+        break;
+      case 'not-configured':
+        window.setTimeout(this.connect.bind(this), 10 * 1000);
+        break;
+      case 'dashboard':
+        if (this._currentDashboardIndex === -1) {
+          _this.nextDashboard();
+        }
+        window.setInterval(function () {
+          _this.nextDashboard();
+        }, this.config.interval * 1000);
+        break;
+      case 'dashboard-changed':
+        break;
+    }
+  };
+
+  Dashboard.prototype.getConfiguration = function () {
+    var _this = this;
+    var xhr = new XHR(_this._apiUrl + '/dashboards/' + this._id);
+    xhr.getJson(function (err, res, statusCode) {
+      if (statusCode === 404) {
+        return _this.notRegistered();
       }
-      _this.hideAllElementsExcept('dashboard');
-      _this.showNextDashboard();
-    }
-  });
-};
+      if (err) { return _this.hasError(err); }
+      _this.config = res;
+      if (!_this.config.urls || _this.config.urls.length === 0) {
+        return _this.noCode();
+      }
+      return _this.dashboard();
+    });
+  };
 
-Dashboard.prototype.notInitialised = function () {
-  this.hideAllElementsExcept('not-initialised');
-};
+  Dashboard.prototype.registerDashboard = function () {
+    var _this = this;
+    var xhr = new XHR(this._apiUrl + '/dashboards');
+    xhr.postJson({ id : this._id }, function (err, res, statusCode) {
+      if (err) { return _this.hasError(err); }
+      _this.noCode();
+    });
+  };
 
-Dashboard.prototype.notConfigured = function () {
-  this.hideAllElementsExcept('not-configured');
-  this.getDashboardCode(function (err, res) {
-    if (err) {
-      document.getElementById('connectionStatus').innerText = err;
+  Dashboard.prototype.getDashboardCode = function () {
+    var _this = this;
+    var xhr = new XHR(this._apiUrl + '/dashboards/' + this._id + '/code');
+    xhr.getJson(function (err, res, statusCode) {
+      if (err) { return _this.hasError(err); }
+      _this.code = res.code;
+      _this.notConfigured();
+    });
+  };
+
+  Dashboard.prototype.nextDashboard = function () {
+    if (this._currentDashboardIndex >= this.config.urls.length - 1) {
+      this._currentDashboardIndex = 0;
     } else {
-      document.getElementById('code').innerText = res.code;
+      this._currentDashboardIndex++;
     }
-  });
-};
+    this.url = this.config.urls[this._currentDashboardIndex];
+    console.log('Showing %s of %s: %s', this._currentDashboardIndex + 1, this.config.urls.length, this.url);
+    this.dashboardChanged();
+  };
 
-Dashboard.prototype.waitForConnection = function (callback) {
-  var timeoutInSeconds = 15;
-  var _this = this;
-  var xhr = new XHR(_this._apiUrl + '/dashboards/' + this._id);
-  xhr.getJson(function (err, res, statusCode) {
-    if (statusCode === 404) {
-      _this.registerDashboard(callback);
-    }
-    if (err) {
-      callback(
-        err + '\r\n' +
-        new Date().toLocaleString() + '\r\n' +
-        'Connection to server failed, retrying in ' + timeoutInSeconds + 's' + '\r\n'
-      );
-      window.setTimeout(function() {
-        _this.waitForConnection(callback);
-      }, timeoutInSeconds * 1000);
-    } else {
-      callback(null, res);
-    }
-  });
-};
+  context.Dashboard = Dashboard;
 
-Dashboard.prototype.registerDashboard = function (callback) {
-  var xhr = new XHR(this._apiUrl + '/dashboards');
-  xhr.postJson({ id : this._id }, function (err, res, statusCode) {
-    callback(err, res);
-  });
-};
-
-Dashboard.prototype.getDashboardCode = function (callback) {
-  var xhr = new XHR(this._apiUrl + '/dashboards/' + this._id + '/code');
-  xhr.getJson(function (err, res, statusCode) {
-    callback(err, res);
-  });
-};
-
-Dashboard.prototype.showNextDashboard = function () {
-  var _this = this;
-  if (this._currentDashboardIndex >= this._config.urls.length - 1) {
-    this._currentDashboardIndex = 0;
-  } else {
-    this._currentDashboardIndex++;
-  }
-  this.changeDashboard();
-  setTimeout(function () {
-    _this.showNextDashboard();
-  }, this._config.interval * 1000);
-};
-
-Dashboard.prototype.changeDashboard = function () {
-  var url = this._config.urls[this._currentDashboardIndex];
-  console.log('Showing %s of %s: %s', this._currentDashboardIndex + 1, this._config.urls.length, url);
-  var dashboardIFrame = document.createElement('iframe');
-//    dashboard.addEventListener('load', function () {
-//      dashboard.classList.remove('hidden');
-//    }, false);
-  // dashboard.setAttribute('allowtransparency', 'true');
-  dashboardIFrame.src = url;
-  var dashboardSection = document.getElementById('dashboard');
-  dashboardSection.innerHTML = '';
-  dashboardSection.appendChild(dashboardIFrame);
-};
-
-Dashboard.prototype.hideAllElementsExcept = function (elementId) {
-  var _this = this;
-  var elementIds = [
-    'not-initialised',
-    'not-configured',
-    'disconnected',
-    'dashboard'
-  ];
-  elementIds.forEach(function (currentElementId) {
-    if (currentElementId === elementId) {
-      _this.showElement(currentElementId);
-    } else {
-      _this.hideElement(currentElementId);
-    }
-  });
-};
-
-Dashboard.prototype.hideElement = function (elementId) {
-  document.getElementById(elementId).classList.add('hidden');
-};
-
-Dashboard.prototype.showElement = function (elementId) {
-  document.getElementById(elementId).classList.remove('hidden');
-};
-
-// taken from http://jsperf.com/querystring-with-javascript/20
-function getQueryStringValue(key) {
-  var arrSearch = location.search.split(key + '=')[1];
-  return arrSearch ? decodeURIComponent(arrSearch.split('&')[0].replace(/\+/g, ' ')) : false;
-}
+}(window));
