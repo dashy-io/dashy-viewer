@@ -1,6 +1,7 @@
 /* global console, XHR, document */
+'use strict';
 
-function Dashboard(options) {
+function Dashboard() {
   this._apiUrl = 'http://api.dashy.io';
   this._currentDashboardIndex = -1;
 }
@@ -10,35 +11,48 @@ Dashboard.prototype.init = function () {
 
   this._id = getQueryStringValue('id');
   if (!this._id) {
-    this.notConfigured();
+    this.notInitialised();
     return;
   }
-
-  console.log('Initializing dashboard ' + this._id);
 
   this.waitForConnection(function (err, res) {
     if (err) {
       document.getElementById('connectionStatus').innerText = err;
     } else {
       document.getElementById('connectionStatus').innerText = 'Connected.';
-      console.log('Connected to ' + _this._apiUrl);
       _this._config = res;
+      if (!_this._config.url || _this._config.urls.length == 0) {
+        return _this.notConfigured();
+      }
       _this.hideAllElementsExcept('dashboard');
       _this.showNextDashboard();
     }
   });
 };
 
+Dashboard.prototype.notInitialised = function () {
+  this.hideAllElementsExcept('not-initialised');
+};
+
 Dashboard.prototype.notConfigured = function () {
-  console.log('Dashy not configured, missing daashboard ID');
   this.hideAllElementsExcept('not-configured');
+  this.getDashboardCode(function (err, res) {
+    if (err) {
+      document.getElementById('connectionStatus').innerText = err;
+    } else {
+      document.getElementById('code').innerText = res.code;
+    }
+  });
 };
 
 Dashboard.prototype.waitForConnection = function (callback) {
   var timeoutInSeconds = 15;
   var _this = this;
   var xhr = new XHR(_this._apiUrl + '/dashboards/' + this._id);
-  xhr.getJson(function (err, res) {
+  xhr.getJson(function (err, res, statusCode) {
+    if (statusCode === 404) {
+      _this.registerDashboard(callback);
+    }
     if (err) {
       callback(
         err + '\r\n' +
@@ -51,6 +65,20 @@ Dashboard.prototype.waitForConnection = function (callback) {
     } else {
       callback(null, res);
     }
+  });
+};
+
+Dashboard.prototype.registerDashboard = function (callback) {
+  var xhr = new XHR(this._apiUrl + '/dashboards');
+  xhr.postJson({ id : this._id }, function (err, res, statusCode) {
+    callback(err, res);
+  });
+};
+
+Dashboard.prototype.getDashboardCode = function (callback) {
+  var xhr = new XHR(this._apiUrl + '/dashboards/' + this._id + '/code');
+  xhr.getJson(function (err, res, statusCode) {
+    callback(err, res);
   });
 };
 
@@ -84,6 +112,7 @@ Dashboard.prototype.changeDashboard = function () {
 Dashboard.prototype.hideAllElementsExcept = function (elementId) {
   var _this = this;
   var elementIds = [
+    'not-initialised',
     'not-configured',
     'disconnected',
     'dashboard'
