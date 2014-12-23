@@ -1,3 +1,4 @@
+/* global console */
 ;(function (context) {
   'use strict';
 
@@ -7,12 +8,13 @@
   }
 
   DashboardUi.prototype.init = function () {
-    var _this = this;
-    this._dashboard.setOnStateChangedCallback(_this.updateUi.bind(this));
+    this._dashboard.setOnStateChangedCallback(this.updateUi.bind(this));
+    context.setInterval(this.updateInfo.bind(this), 1 * 1000);
   };
 
   DashboardUi.prototype.updateUi = function () {
     var newState = this._dashboard.state;
+    console.log('Updating UI for state:', newState);
     this.hideAllElementsExcept(newState);
     switch (this._dashboard.state) {
       case 'error':
@@ -21,7 +23,7 @@
       case 'not-configured':
         this.setElementText('code', this._dashboard.code);
         break;
-      case 'dashboard-changed':
+      case 'dashboard':
         this.displayDashboard();
         break;
     }
@@ -29,6 +31,14 @@
       this.showBody();
       this._bodyHidden = false;
     }
+  };
+
+  DashboardUi.prototype.updateInfo = function () {
+    if (!this._dashboard.lastUpdate) { return; }
+    var secondsSinceLastUpdate = (Date.now() - this._dashboard.lastUpdate) / 1000;
+    var secondsUntilNextUpdate = this._dashboard.interval - secondsSinceLastUpdate;
+    this.setElementText('last-update', new Date(this._dashboard.lastUpdate).toUTCString());
+    this.setElementText('next-update', Math.round(secondsUntilNextUpdate));
   };
 
   DashboardUi.prototype.displayDashboard = function () {

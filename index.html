@@ -12,6 +12,9 @@
   <script src="scripts/main.js"></script>
 </head>
 <body class="hidden">
+  <section id="info">
+    <p>Last update: <span id="last-update">n/a</span>. Next update in <span id="next-update">n/a</span> seconds.</p>
+  </section>
   <section id="not-initialised">
     <h2>Dashy not initialised</h2>
     <p>Dashboard ID parameter not set.</p>
@@ -29,11 +32,11 @@
   </section>
   <section id="no-code">
     <h2>Dashy is not configured</h2>
-    <p>Loading connection code from Dashy server...</p>
+    <p>Loading data from Dashy server...</p>
   </section>
   <section id="not-configured">
     <h2>Dashy is not configured</h2>
-    <p>Connect the dashboard using this code:</p>
+    <p>Configure this dashboard using this code:</p>
     <p id="code"></p>
   </section>
   <section id="dashboard">

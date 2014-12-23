@@ -11,6 +11,7 @@
   function Dashboard() {
     this._apiUrl = 'http://api.dashy.io';
     this._currentDashboardIndex = -1;
+    this.interval = 3;
   }
 
   Dashboard.prototype.setOnStateChangedCallback = function (cb) {
@@ -19,10 +20,6 @@
 
   Dashboard.prototype.setState = function (state) {
     this.state = state;
-    if (this.onStateChanged) {
-      this.onStateChanged();
-    }
-    this.connect();
   };
 
   Dashboard.prototype.init = function () {
@@ -32,6 +29,7 @@
       return;
     }
     this.disconnected();
+    this.connect();
   };
 
   Dashboard.prototype.disconnected = function () {
@@ -63,13 +61,14 @@
     this.setState('dashboard');
   };
 
-  Dashboard.prototype.dashboardChanged = function () {
-    this.setState('dashboard-changed');
-  };
-
   Dashboard.prototype.connect = function () {
-    var _this = this;
+    console.log('Dashboard state:', this.state);
+    this.lastUpdate = Date.now();
     switch (this.state) {
+      case 'error':
+        this.interval = 10;
+        this.getConfiguration();
+        break;
       case 'disconnected':
         this.getConfiguration();
         break;
@@ -77,22 +76,22 @@
         this.registerDashboard();
         break;
       case 'no-code':
+        this.interval = 1;
         this.getDashboardCode();
         break;
       case 'not-configured':
-        window.setTimeout(this.connect.bind(this), 10 * 1000);
+        this.interval = 5;
+        this.getConfiguration();
         break;
       case 'dashboard':
-        if (this._currentDashboardIndex === -1) {
-          _this.nextDashboard();
-        }
-        window.setInterval(function () {
-          _this.nextDashboard();
-        }, this.config.interval * 1000);
-        break;
-      case 'dashboard-changed':
+        this.interval = this.config.interval;
+        this.nextDashboard();
         break;
     }
+    if (this.onStateChanged) {
+      this.onStateChanged();
+    }
+    window.setTimeout(this.connect.bind(this), this.interval * 1000);
   };
 
   Dashboard.prototype.getConfiguration = function () {
@@ -138,7 +137,6 @@
     }
     this.url = this.config.urls[this._currentDashboardIndex];
     console.log('Showing %s of %s: %s', this._currentDashboardIndex + 1, this.config.urls.length, this.url);
-    this.dashboardChanged();
   };
 
   context.Dashboard = Dashboard;

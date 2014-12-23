@@ -37,3 +37,12 @@ iframe {
 #code {
 
 }
+
+#info,
+#info p {
+  margin: 0;
+  padding: 0;
+}
+#info p {
+  text-align: right;
+}
