@@ -11,14 +11,23 @@ body {
   height: 100%;
   overflow: hidden;
   background-color: inherit;
+  font-size: 5vh;
 }
 
 section {
   color: white;
+  padding-left: 3vh;
+}
+
+p {
+  margin: 0;
+  padding: 0;
 }
 
 #dashboard {
   height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 iframe {
@@ -34,15 +43,18 @@ iframe {
   display: none;
 }
 
+#error-message {
+  font-size: 3vh;
+  line-break: strict;
+  word-break: break-all;
+}
+
 #code {
-
+  font-size: 20vh;
 }
 
-#info,
 #info p {
-  margin: 0;
-  padding: 0;
-}
-#info p {
+  color: darkgray;
+  font-size: 12pt;
   text-align: right;
 }

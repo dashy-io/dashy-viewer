@@ -39,6 +39,7 @@
     var secondsUntilNextUpdate = this._dashboard.interval - secondsSinceLastUpdate;
     this.setElementText('last-update', new Date(this._dashboard.lastUpdate).toUTCString());
     this.setElementText('next-update', Math.round(secondsUntilNextUpdate));
+    this.setElementText('dashboard-name', this._dashboard.config.name || 'n/a');
   };
 
   DashboardUi.prototype.displayDashboard = function () {

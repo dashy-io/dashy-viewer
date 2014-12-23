@@ -12,6 +12,7 @@
     this._apiUrl = 'http://api.dashy.io';
     this._currentDashboardIndex = -1;
     this.interval = 3;
+    this.lastUpdate = null;
   }
 
   Dashboard.prototype.setOnStateChangedCallback = function (cb) {
@@ -132,6 +133,7 @@
   Dashboard.prototype.nextDashboard = function () {
     if (this._currentDashboardIndex >= this.config.urls.length - 1) {
       this._currentDashboardIndex = 0;
+      // TODO: Reload UI here to update settings
     } else {
       this._currentDashboardIndex++;
     }
