@@ -2,4 +2,4 @@ dashy-client
 ============
 Dashboard Management Platform: Client
 
-Demo: http://dashy-io.github.io/dashy-client/?id=example-dashboard
+Demo: http://client.dashy.io/?id=example-dashboard
