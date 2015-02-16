@@ -89,8 +89,8 @@
   };
 
   DashboardUi.prototype.setElementText = function (elementId, text) {
-    document.getElementById(elementId).innerText = text;
-  }
+    document.getElementById(elementId).textContent = text;
+  };
 
   context.DashboardUi = DashboardUi;
 

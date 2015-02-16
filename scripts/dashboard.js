@@ -13,6 +13,7 @@
     this._currentDashboardIndex = -1;
     this.interval = 3;
     this.lastUpdate = null;
+    this.config = {};
   }
 
   Dashboard.prototype.setOnStateChangedCallback = function (cb) {
@@ -41,8 +42,14 @@
     this.setState('not-initialised');
   };
 
-  Dashboard.prototype.hasError = function (error) {
-    this.errorMessage = error;
+  Dashboard.prototype.hasError = function (err, res) {
+    if (res && res.message) {
+      this.errorMessage = res.message;
+    } else {
+      this.errorMessage = err;
+    }
+
+    console.log('ERROR!', err, this.errorMessage);
     this.setState('error');
   };
 
@@ -102,8 +109,8 @@
       if (statusCode === 404) {
         return _this.notRegistered();
       }
-      if (err) { return _this.hasError(err); }
-      _this.config = res;
+      if (err) { return _this.hasError(err, res); }
+      _this.config = res || {};
       if (!_this.config.urls || _this.config.urls.length === 0) {
         return _this.noCode();
       }
@@ -115,7 +122,7 @@
     var _this = this;
     var xhr = new XHR(this._apiUrl + '/dashboards');
     xhr.postJson({ id : this._id }, function (err, res, statusCode) {
-      if (err) { return _this.hasError(err); }
+      if (err) { return _this.hasError(err, res); }
       _this.noCode();
     });
   };
@@ -124,7 +131,7 @@
     var _this = this;
     var xhr = new XHR(this._apiUrl + '/dashboards/' + this._id + '/code');
     xhr.getJson(function (err, res, statusCode) {
-      if (err) { return _this.hasError(err); }
+      if (err) { return _this.hasError(err, res); }
       _this.code = res.code;
       _this.notConfigured();
     });
