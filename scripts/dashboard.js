@@ -25,21 +25,18 @@
   };
 
   Dashboard.prototype.init = function () {
+    console.log('Initializing...');
     this._id = getQueryStringValue('id');
     if (!this._id) {
-      this.notInitialised();
-      return;
+      this.notRegistered();
+    } else {
+      this.disconnected();
     }
-    this.disconnected();
     this.connect();
   };
 
   Dashboard.prototype.disconnected = function () {
     this.setState('disconnected');
-  };
-
-  Dashboard.prototype.notInitialised = function () {
-    this.setState('not-initialised');
   };
 
   Dashboard.prototype.hasError = function (err, res) {
@@ -121,9 +118,11 @@
   Dashboard.prototype.registerDashboard = function () {
     var _this = this;
     var xhr = new XHR(this._apiUrl + '/dashboards');
-    xhr.postJson({ id : this._id }, function (err, res, statusCode) {
+    xhr.postJson({ }, function (err, res, statusCode) {
       if (err) { return _this.hasError(err, res); }
-      _this.noCode();
+      if (!redirectWithDashboardId(res.id)) {
+        _this.noCode();
+      }
     });
   };
 
@@ -147,6 +146,30 @@
     this.url = this.config.urls[this._currentDashboardIndex];
     console.log('Showing %s of %s: %s', this._currentDashboardIndex + 1, this.config.urls.length, this.url);
   };
+
+  // this method handles the following situations:
+  // - Redirect: index.html
+  // - Redirect: index.html?
+  // - Redirect: index.html?id=
+  // - Do not redirect: index.html?id=GUID
+  function redirectWithDashboardId(id) {
+    var hasId = !!getQueryStringValue(id);
+    if (hasId) {
+      return false;
+    }
+    var url = location.href;
+    url = url.replace('id=', ''); // in case the url has the parameter with no value
+    if (url.indexOf('?') < 0) {
+      url += '?';
+    } else {
+      if (!!url.split('?')[1]) {
+        url += '&';
+      }
+    }
+    url += 'id=' + id;
+    window.location.href = url;
+    return true;
+  }
 
   context.Dashboard = Dashboard;
 

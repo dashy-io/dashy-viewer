@@ -60,7 +60,6 @@
     var _this = this;
     var elementIds = [
       'error',
-      'not-initialised',
       'disconnected',
       'not-registered',
       'no-code',
