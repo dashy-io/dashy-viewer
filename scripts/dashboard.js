@@ -85,7 +85,7 @@
         this.getDashboardCode();
         break;
       case 'not-configured':
-        this.interval = 5;
+        this.interval = 15;
         this.getConfiguration();
         break;
       case 'dashboard':
