@@ -8,13 +8,48 @@
     return arrSearch ? decodeURIComponent(arrSearch.split('&')[0].replace(/\+/g, ' ')) : false;
   }
 
+  // taken from http://stackoverflow.com/a/10944417
+  function getMsSinceMidnight() {
+    var now = new Date();
+    var midnight = new Date(now);
+    return now - midnight.setHours(0, 0, 0, 0);
+  }
+
   function Dashboard() {
     this._apiUrl = 'http://api.dashy.io';
+    this._id = getQueryStringValue('id');
     this._currentDashboardIndex = -1;
+    this.remainingIntervals = [];
     this.interval = 3;
     this.lastUpdate = null;
     this.config = {};
   }
+
+  Dashboard.prototype.init = function () {
+    console.log('Initializing...');
+    window.setInterval(this.mainLoop.bind(this), 100);
+    if (!this._id) {
+      this.notRegistered();
+    } else {
+      this.disconnected();
+    }
+    this.connect();
+  };
+
+  Dashboard.prototype.mainLoop = function () {
+    if (this.isIntervalExpired(this.interval)) {
+      this.connect();
+    }
+  };
+
+  Dashboard.prototype.isIntervalExpired = function (interval) {
+    var intervalMs = interval * 1000;
+    var sinceMidnight = getMsSinceMidnight();
+    var remaining = intervalMs - (sinceMidnight % intervalMs);
+    var expired = remaining > this.remainingIntervals[interval];
+    this.remainingIntervals[interval] = remaining;
+    return expired;
+  };
 
   Dashboard.prototype.setOnStateChangedCallback = function (cb) {
     this.onStateChanged = cb;
@@ -22,17 +57,6 @@
 
   Dashboard.prototype.setState = function (state) {
     this.state = state;
-  };
-
-  Dashboard.prototype.init = function () {
-    console.log('Initializing...');
-    this._id = getQueryStringValue('id');
-    if (!this._id) {
-      this.notRegistered();
-    } else {
-      this.disconnected();
-    }
-    this.connect();
   };
 
   Dashboard.prototype.disconnected = function () {
@@ -96,12 +120,11 @@
     if (this.onStateChanged) {
       this.onStateChanged();
     }
-    window.setTimeout(this.connect.bind(this), this.interval * 1000);
   };
 
   Dashboard.prototype.getConfiguration = function () {
     var _this = this;
-    var xhr = new XHR(_this._apiUrl + '/dashboards/' + this._id);
+    var xhr = new XHR(this._apiUrl + '/dashboards/' + this._id);
     xhr.getJson(function (err, res, statusCode) {
       if (statusCode === 404) {
         return _this.notRegistered();
