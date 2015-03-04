@@ -35,10 +35,9 @@
 
   DashboardUi.prototype.updateInfo = function () {
     if (!this._dashboard.lastUpdate) { return; }
-    var secondsSinceLastUpdate = (Date.now() - this._dashboard.lastUpdate) / 1000;
-    var secondsUntilNextUpdate = this._dashboard.interval - secondsSinceLastUpdate;
+    var secondsUntilNextUpdate = Math.floor(this._dashboard.remainingIntervals[this._dashboard.interval] / 1000);
     this.setElementText('last-update', new Date(this._dashboard.lastUpdate).toUTCString());
-    this.setElementText('next-update', Math.round(secondsUntilNextUpdate));
+    this.setElementText('next-update', secondsUntilNextUpdate);
     this.setElementText('dashboard-name', this._dashboard.config.name || 'n/a');
   };
 
