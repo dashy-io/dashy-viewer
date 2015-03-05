@@ -1,8 +1,8 @@
-dashy-client
+dashy-viewer
 ============
-Dashboard Management Platform: Client
+Dashy Web Viewer
 
-Demo: http://client.dashy.io/?id=example-dashboard
+Demo: http://view.dashy.io/?id=example-dashboard
 
 ### Credits
 
