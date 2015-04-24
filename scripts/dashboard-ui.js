@@ -15,6 +15,7 @@
   DashboardUi.prototype.updateUi = function () {
     var newState = this._dashboard.state;
     console.log('Updating UI for state:', newState);
+    document.body.classList.add('black');
     this.hideAllElementsExcept(newState);
     switch (this._dashboard.state) {
       case 'error':
@@ -48,6 +49,7 @@
 //      dashboard.classList.remove('hidden');
 //    }, false);
     // dashboard.setAttribute('allowtransparency', 'true');
+    document.body.classList.remove('black');
     dashboardIFrame.src = url;
     var dashboardSection = document.getElementById('dashboard');
     dashboardSection.innerHTML = '';

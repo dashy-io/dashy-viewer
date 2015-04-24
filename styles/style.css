@@ -8,6 +8,10 @@ body {
   font-size: 35px;
   font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
+body.black {
+  background: #000;
+  color: #eee;
+}
 
 html,
 body,
