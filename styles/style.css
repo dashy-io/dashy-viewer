@@ -1,15 +1,12 @@
 html {
-  background-color: black;
   height: 100%;
 }
 
 body {
-  background-color: inherit;
   height: 100%;
   overflow: hidden;
   font-size: 35px;
   font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
-  color: #EEE;
 }
 
 html,
@@ -49,6 +46,10 @@ iframe {
   padding-top: 0.6em;
   font-size: 4em;
   font-family: "Lucida Console", Monaco, monospace;
+}
+
+#info {
+  background-color: black;
 }
 
 #info p {
